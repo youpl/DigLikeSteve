@@ -7,9 +7,6 @@ Un administrateur définit un cuboïde. Avant chaque partie, le plugin le rempli
 distribution pondérée de blocs. Après 60 secondes d'inscription, les participants disposent de
 10 minutes pour détruire les blocs et obtenir le meilleur score.
 
-Cette implémentation suit le document d'architecture technique [`DAT.md`](DAT.md). Les évolutions
-sont consignées dans le [`CHANGELOG.md`](CHANGELOG.md).
-
 > **Version bêta.** Le cycle de jeu complet est vérifié sur Paper 26.1.2, mais la qualification
 > Folia et les tests de charge du lot 6 restent à mener. Voir les
 > [écarts connus](#écarts-connus-par-rapport-au-dat).
