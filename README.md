@@ -146,38 +146,6 @@ dls-plugin/          bootstrap JavaPlugin, assemblage, ressources
 dls-test-support/    doublures de ports et bancs de test
 ```
 
-## Tests
-
-```bash
-./gradlew test
-```
-
-Couvre la machine à états et ses transitions interdites, la distribution exacte et sa
-reproductibilité par graine, le mapping cuboïde/index, le `compare-and-set` du bitset sous
-concurrence, les arrondis de demi-cœurs et le plafonnement de pénalité, la frontière du délai de
-reconnexion à 29,999 s et 30,001 s, les stratégies d'égalité et l'idempotence des règlements.
-
-Les scénarios de thread Folia et le comportement réel des explosions ne sont pas simulables : ils
-doivent être qualifiés sur de vrais serveurs de test, Paper puis Folia.
-
-## Écarts connus par rapport au DAT
-
-Ces points sont volontairement laissés de côté ou partiellement couverts ; ils sont sans effet
-sur la sûreté du jeu.
-
-- **MiniPlaceholders** : la clé de configuration existe, seule l'expansion PlaceholderAPI est
-  implémentée.
-- **CoreProtect** : la clé `integrations.coreprotect-skip-logging` est lue mais aucun appel n'est
-  encore fait à son API.
-- **`/dls admin prepare`** est un alias de `/dls admin start` : la préparation et l'ouverture des
-  inscriptions forment une seule opération, comme le décrit le §6.3.
-- **Backend FAWE d'accélération** du remplissage : non implémenté. Le DAT le réserve à une étape
-  ultérieure ; le backend natif reste la référence et le seul chemin garanti sur Folia.
-- **Métriques p50/p95/p99** (§19) : non exportées. `/dls admin debug` expose les compteurs
-  d'état ; le plugin s'intègre à spark sans en dépendre.
-- **Qualification Folia** (§21) : le code respecte l'affinité de région, mais seul Paper 26.1.2 a
-  été exercé ici. Un passage sur un build Folia correspondant reste à faire.
-- **Reprise de session après redémarrage** : hors périmètre V1, conformément au §2.
 
 ## Configuration
 
