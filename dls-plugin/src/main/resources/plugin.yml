@@ -1,0 +1,70 @@
+name: DigLikeSteve
+version: '${version}'
+main: io.github.youpl.diglikesteve.DigLikeStevePlugin
+api-version: '26.1'
+folia-supported: true
+authors: [youpl]
+website: https://github.com/youpl/DigLikeSteve
+description: Mini-jeu de minage a partie unique, compatible Paper et Folia.
+
+# Toutes les integrations sont facultatives : le plugin demarre et fonctionne sans elles.
+softdepend:
+  - WorldEdit
+  - FastAsyncWorldEdit
+  - PlaceholderAPI
+  - MiniPlaceholders
+  - WorldGuard
+  - CoreProtect
+  - Essentials
+  - CMI
+  - HuskHomes
+
+# Le driver SQLite est telecharge par le LibraryLoader de Paper plutot qu'embarque.
+libraries:
+  - org.xerial:sqlite-jdbc:${sqliteVersion}
+
+commands:
+  dls:
+    description: Commandes de Dig Like Steve.
+    usage: /dls <join|leave|top|status|admin>
+    aliases: [diglikesteve]
+
+permissions:
+  dls.join:
+    description: Rejoindre une partie.
+    default: true
+  dls.command.top:
+    description: Consulter le classement.
+    default: true
+  dls.admin:
+    description: Acces aux commandes d'administration.
+    default: op
+    children:
+      dls.admin.area: true
+      dls.admin.start: true
+      dls.admin.stop: true
+      dls.admin.reload: true
+      dls.admin.recovery: true
+      dls.admin.rewards: true
+      dls.admin.debug: true
+  dls.admin.area:
+    description: Definir ou importer la zone de la mine.
+    default: op
+  dls.admin.start:
+    description: Preparer et lancer une partie.
+    default: op
+  dls.admin.stop:
+    description: Arreter la partie en cours.
+    default: op
+  dls.admin.reload:
+    description: Recharger la configuration.
+    default: op
+  dls.admin.recovery:
+    description: Lister et forcer les restaurations en attente.
+    default: op
+  dls.admin.rewards:
+    description: Gerer l'outbox de recompense.
+    default: op
+  dls.admin.debug:
+    description: Afficher le diagnostic interne.
+    default: op

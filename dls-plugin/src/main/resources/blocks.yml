@@ -1,0 +1,54 @@
+# ---------------------------------------------------------------------------
+# Distribution de la mine
+#
+# La somme des « percent » doit valoir exactement 100. Le nombre de blocs de
+# chaque type est calculé par la méthode des plus forts restes, puis mélangé
+# par Fisher-Yates depuis la graine de session : une même graine reproduit
+# exactement la même mine, et aucun type n'est sur- ou sous-représenté.
+#
+# « points » est la valeur créditée à la casse. La TNT vaut 0 point : elle ne
+# crédite que la valeur des blocs scorables qu'elle détruit, diminuée de la
+# pénalité si son propriétaire se blesse.
+# ---------------------------------------------------------------------------
+
+blocks:
+  stone:
+    material: STONE
+    percent: 40.0
+    points: 3
+    tool: DIAMOND_PICKAXE
+  cobblestone:
+    material: COBBLESTONE
+    percent: 25.0
+    points: 5
+    tool: DIAMOND_PICKAXE
+  ice:
+    material: ICE
+    percent: 12.0
+    points: 1
+    tool: DIAMOND_PICKAXE
+  oak_log:
+    material: OAK_LOG
+    percent: 10.0
+    points: 4
+    tool: DIAMOND_AXE
+  melon:
+    material: MELON
+    percent: 7.0
+    points: 5
+    tool: DIAMOND_AXE
+  tnt:
+    material: TNT
+    percent: 4.0
+    points: 0
+    tool: FLINT_AND_STEEL
+  iron_block:
+    material: IRON_BLOCK
+    percent: 2.0
+    points: 10
+    tool: DIAMOND_PICKAXE
+
+# Blocs interdits autour d'une poche de spawn. Le générateur les échange avec
+# un bloc inoffensif situé ailleurs, ce qui préserve les quotas exacts.
+spawn-hazards:
+  - TNT

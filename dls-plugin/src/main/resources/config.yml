@@ -1,0 +1,120 @@
+# ---------------------------------------------------------------------------
+# Dig Like Steve — configuration principale
+#
+# Toute modification d'arène, de blocs ou de durée n'est prise en compte
+# qu'en phase IDLE : /dls admin reload est refusé pendant une partie.
+# ---------------------------------------------------------------------------
+
+# Journalisation détaillée des chemins internes.
+debug: false
+
+durations:
+  # Fenêtre d'inscription, en secondes.
+  registration-seconds: 60
+  # Durée de jeu, en secondes. Mesurée sur l'horloge murale : une baisse de TPS
+  # ne rallonge jamais la partie.
+  game-seconds: 600
+  # Délai de grâce après une déconnexion. Au-delà, le joueur est disqualifié et
+  # son inventaire lui est rendu à sa prochaine connexion.
+  reconnect-grace-seconds: 30
+
+# shared : tous les ex æquo sont récompensés (défaut)
+# first-reached : le premier à avoir atteint le score gagne seul
+# random : un seul gagnant, tiré de façon reproductible depuis la graine
+tie-strategy: shared
+
+arena:
+  # Laissez vide tant que la zone n'est pas définie : le plugin démarre quand même.
+  world: ''
+  corner-1:
+    x: 0
+    y: 64
+    z: 0
+  corner-2:
+    x: 0
+    y: 64
+    z: 0
+  # Nombre de poches de spawn réservées, donc de participants simultanés maximum.
+  max-participants: 32
+
+spawn:
+  # Largeur et profondeur de la poche d'air, impaire.
+  pocket-width: 3
+  # Hauteur libre au-dessus des pieds, 2 minimum.
+  pocket-height: 2
+  # Distance minimale entre deux joueurs.
+  min-distance: 6
+  # Rayon dans lequel aucun bloc dangereux ne subsiste autour d'un spawn.
+  hazard-safe-radius: 2
+  max-attempts: 20000
+
+mine:
+  # Budget d'écriture progressive : plus la valeur est basse, plus les TPS sont
+  # préservés pendant la préparation.
+  max-blocks-per-batch: 4096
+  max-chunks-in-flight: 4
+  # Volume refusé au-delà, avant toute allocation.
+  max-volume: 2000000
+  # Empreinte mémoire maximale estimée du plan de mine.
+  max-heap-bytes: 268435456
+
+damage:
+  # Recommandation V1 : PvP désactivé, dégâts environnementaux annulés,
+  # dégâts TNT conservés mais non létaux.
+  pvp: false
+  cancel-environmental: true
+  tnt-lethal: false
+
+tnt:
+  # Part du gain brut retirée par demi-cœur de dégâts finaux reçus.
+  penalty-rate-per-half-heart: 0.05
+  # La pénalité ne peut pas dépasser le gain de la TNT concernée : elle ne
+  # retire donc jamais des points acquis auparavant.
+  cap-penalty-to-gross: true
+  # N'attribuer une TNT que si elle a été allumée avec le briquet DLS.
+  require-dls-igniter: true
+  # Causes d'amorçage créditées. Une TNT allumée par redstone, feu, projectile
+  # ou plugin tiers ne rapporte rien par défaut.
+  allowed-prime-causes:
+    - PLAYER
+  ownership-ttl-seconds: 120
+  account-ttl-seconds: 30
+  # Annule les dommages de blocs situés hors du cuboïde.
+  confine-damage-to-arena: true
+  remove-explosion-drops: true
+
+storage:
+  backend: sqlite
+  file: 'data/dls.db'
+  # Rétention des snapshots restaurés avant purge.
+  snapshot-retention-days: 14
+  busy-timeout-millis: 5000
+
+# Destination de sortie. Laissez vide pour utiliser le spawn du monde principal.
+exit-destination:
+  world: ''
+  x: 0.5
+  y: 64.0
+  z: 0.5
+  yaw: 0.0
+  pitch: 0.0
+
+warp:
+  # destination : le fournisseur de warp téléporte vers le point d'accès
+  #               ci-dessous, et l'arrivée dans son rayon inscrit le joueur.
+  # exact-command : intercepte strictement /warp <name>. Plus intrusif.
+  # disabled : aucun pont.
+  bridge-mode: destination
+  name: DLS
+  trigger-radius: 3.0
+  access-point:
+    world: ''
+    x: 0.5
+    y: 64.0
+    z: 0.5
+
+integrations:
+  worldedit-selection: true
+  placeholderapi: true
+  miniplaceholders: true
+  coreprotect-skip-logging: false

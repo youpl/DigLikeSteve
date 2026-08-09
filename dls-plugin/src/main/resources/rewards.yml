@@ -1,0 +1,32 @@
+# ---------------------------------------------------------------------------
+# Récompenses
+#
+# La ligne d'outbox est écrite en base AVANT tout appel au fournisseur, dans la
+# même transaction que l'incrément du compteur de victoires. Un incident laisse
+# donc une entrée rejouable via /dls admin rewards retry <id>.
+#
+# Une commande console arbitraire ne peut pas garantir « exactement une fois » :
+# la sémantique annoncée est at-least-once. Préférez une commande idempotente
+# quand votre plugin de crates en propose une.
+# ---------------------------------------------------------------------------
+
+# console-command : compatible ExcellentCrates, CrazyCrates, CrateReloaded…
+# inventory-key   : remet un item de clé après restauration de l'inventaire.
+strategy: console-command
+
+console-command:
+  # Placeholders acceptés : %player%, %uuid%, %session%.
+  # Tout autre placeholder fait échouer la validation au démarrage.
+  commands:
+    - 'crate give %player% dls-key 1'
+
+inventory-key:
+  material: TRIPWIRE_HOOK
+  name: '<gold>Clé Dig Like Steve</gold>'
+
+# Compteur permanent de victoires, incrémenté avec la création de la récompense.
+# Le classement de la partie suivante repart toujours de zéro.
+track-wins: true
+
+# Période de rejeu automatique des entrées en attente, en secondes.
+retry-period-seconds: 60

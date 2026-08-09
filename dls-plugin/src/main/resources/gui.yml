@@ -1,0 +1,5 @@
+# Disposition du menu d'administration (/dls admin menu).
+# Le menu ne modifie qu'un brouillon : l'écriture de la configuration est
+# atomique et refusée hors de la phase IDLE.
+
+title: '<dark_gray>Dig Like Steve — administration</dark_gray>'

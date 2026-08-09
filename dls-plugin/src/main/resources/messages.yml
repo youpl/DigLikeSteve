@@ -1,0 +1,98 @@
+# Messages MiniMessage. Le préfixe est ajouté à tous les messages sauf aux
+# éléments de HUD (boss bar, action bar).
+prefix: '<gray>[</gray><gold>DLS</gold><gray>]</gray> '
+
+command:
+  usage: '<gray>Utilisation : <white>/dls <join|leave|top|status|admin></white></gray>'
+  admin-usage: '<gray>Utilisation : <white>/dls admin <menu|pos1|pos2|selection import|prepare|start|stop|reload|recovery|rewards|debug></white></gray>'
+  no-permission: '<red>Vous n''avez pas la permission requise.</red>'
+  players-only: '<red>Cette commande doit être exécutée en jeu.</red>'
+
+announce:
+  registration: '<green>Une partie Dig Like Steve démarre !</green> <gray>Cliquez pour rejoindre — <white><seconds>s</white> pour vous inscrire.</gray>'
+  registration-hover: '<yellow>Exécute /dls join</yellow>'
+  started: '<gold>La partie commence !</gold> <gray>Vous avez <white><seconds>s</white>.</gray>'
+  finished: '<gold>Partie terminée.</gold>'
+  podium: '<gray>#<rank></gray> <white><player></white> <gray>—</gray> <yellow><score></yellow>'
+  winner: '<green>Vainqueur :</green> <white><players></white>'
+  no-winner: '<gray>Aucun point marqué : pas de vainqueur.</gray>'
+  cancelled: '<red>Partie annulée</red> <gray>(<reason>)</gray>'
+
+title:
+  start: '<gold>Creusez !</gold>'
+  start-subtitle: '<gray>Le meilleur score gagne</gray>'
+
+hud:
+  bossbar: '<gold>Dig Like Steve</gold> <gray>—</gray> <white><time></white>'
+  actionbar: '<yellow>Score <white><score></white></yellow> <gray>|</gray> <aqua>Rang <white><rank></white></aqua> <gray>|</gray> <white><time></white>'
+
+join:
+  accepted: '<green>Inscription en cours…</green>'
+  ready: '<green>Vous êtes inscrit.</green> <gray>Attendez le départ.</gray>'
+  failed: '<red>Inscription impossible : votre inventaire n''a pas été modifié.</red>'
+  closed: '<red>Aucune inscription n''est ouverte.</red>'
+  already: '<yellow>Vous êtes déjà inscrit.</yellow>'
+  full: '<red>Toutes les places sont prises.</red>'
+  in-progress: '<yellow>Votre inscription est déjà en cours de traitement.</yellow>'
+  not-prepared: '<red>La mine n''est pas encore prête.</red>'
+  recovery-pending: '<red>Un inventaire vous attend : reconnectez-vous ou contactez un administrateur.</red>'
+
+leave:
+  done: '<green>Vous quittez la partie, votre inventaire vous est rendu.</green>'
+  not-registered: '<red>Vous n''êtes pas inscrit.</red>'
+
+reconnect:
+  resumed: '<green>Vous reprenez la partie avec votre score.</green>'
+  too-late: '<red>Délai de reconnexion dépassé : vous êtes disqualifié.</red>'
+  none: ''
+
+recovery:
+  restored: '<green>Votre inventaire d''avant la partie vous a été rendu.</green>'
+
+restriction:
+  place: '<red>Impossible de poser un bloc pendant la partie.</red>'
+  container: '<red>Les conteneurs sont fermés pendant la partie.</red>'
+  teleport: '<red>Téléportation interdite pendant la partie.</red>'
+
+tnt:
+  gain: '<green>+<gross></green> <gray>points d''explosion.</gray>'
+  penalty: '<yellow><gross> points bruts</yellow> <gray>—</gray> <red><penalty> de pénalité</red> <gray>(<hearts> demi-cœurs)</gray> <gray>=</gray> <green><net></green>'
+
+top:
+  header: '<gold>Classement</gold>'
+  line: '<gray>#<rank></gray> <white><player></white> <gray>—</gray> <yellow><score></yellow>'
+  empty: '<gray>Aucun score enregistré.</gray>'
+
+status:
+  idle: '<gray>Aucune partie en cours.</gray>'
+  running: '<gray>Phase <white><phase></white> | joueurs <white><players></white> (<suspended> suspendus) | temps <white><time>s</white> | préparation <white><progress>%</white></gray>'
+
+prepare:
+  done: '<green>Mine prête.</green> <gray>Inscriptions ouvertes pour <white><seconds>s</white>.</gray>'
+  failed: '<red>Préparation impossible :</red> <gray><error></gray>'
+
+admin:
+  preparing: '<gray>Préparation de la mine en cours…</gray>'
+  confirm-required: '<yellow>Cette préparation écrasera entièrement la zone.</yellow> <gray>Relancez la commande pour confirmer, ou ajoutez <white>confirm</white>.</gray>'
+  already-running: '<red>Une partie est déjà en cours.</red>'
+  not-running: '<red>Aucune partie à arrêter.</red>'
+  stop-in-progress: '<yellow>L''arrêt est déjà en cours.</yellow>'
+  stopped: '<green>Partie arrêtée.</green>'
+  no-arena: '<red>Aucune arène définie.</red> <gray>Utilisez /dls admin pos1 et pos2.</gray>'
+  phase-locked: '<red>Modification refusée : une partie est en cours.</red>'
+  reloaded: '<green>Configuration rechargée.</green>'
+  reload-failed: '<red>Rechargement refusé :</red> <gray><error></gray>'
+  corner-set: '<green>Coin <corner> défini</green> <gray>en <position>.</gray>'
+  selection-ready: '<green>Sélection complète</green> <gray>(<volume> blocs).</gray>'
+  selection-incomplete: '<red>Sélection incomplète : posez les deux coins dans le même monde.</red>'
+  selection-unavailable: '<red>Aucune sélection WorldEdit ou FAWE disponible.</red>'
+  arena-saved: '<green>Arène enregistrée</green> <gray><bounds> — <volume> blocs.</gray>'
+  recovery-header: '<gold>Gardes en attente : <white><count></white></gold>'
+  recovery-line: '<gray>- <white><player></white> <gray>(<state>) <dark_gray><snapshot></dark_gray></gray>'
+  recovery-restored: '<green><count> restauration(s) déclenchée(s).</green>'
+  rewards-header: '<gold>Outbox : <white><count></white></gold> <gray>fournisseur <white><provider></white>, sémantique <white><semantics></white></gray>'
+  rewards-line: '<gray>- <white><player></white> <gray>(<state>, <attempts> tentatives) <dark_gray><id></dark_gray></gray>'
+  reward-retried: '<green>Remise relancée.</green>'
+  reward-marked: '<green>Entrée marquée comme remise.</green>'
+  reward-unknown: '<red>Entrée d''outbox introuvable.</red>'
+  debug: '<gray>Plateforme <white><platform></white> | phase <white><phase></white> | participants <white><participants></white> (<suspended> suspendus) | snapshots à restaurer <white><snapshots></white> | comptes TNT <white><tnt_accounts></white> | TNT suivies <white><tracked_tnt></white> | blocs scorés <white><blocks_scored></white> | préparation <white><prepared>%</white></gray>'
