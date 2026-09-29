@@ -1,0 +1,14 @@
+# OneDonjon - configuration generale. Les donjons sont dans dungeons/*.yml (edites via /donjon).
+
+# Commande console executee par l'action TYPEWRITER ({entry} = id d'entree, {player} = joueur).
+# Adaptez-la si votre version de Typewriter utilise une autre syntaxe.
+typewriter-command: "typewriter trigger {entry} {player}"
+
+# Dispersion (blocs) autour du point d'apparition.
+mob-spread: 2.0
+
+# Les joueurs gardent leur inventaire et leur niveau en mourant dans un donjon.
+keep-inventory: true
+
+# Supprime les drops et l'xp des monstres du donjon.
+clear-mob-drops: false
