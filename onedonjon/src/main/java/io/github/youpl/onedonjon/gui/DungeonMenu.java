@@ -24,6 +24,16 @@ public final class DungeonMenu extends Menu {
         plugin.storage().save(d);
     }
 
+    @Override
+    public void open() {
+        if (plugin.runs().of(d.id) != null) {
+            Msg.error(player, "Ce donjon est en cours de partie : edition impossible.");
+            return;
+        }
+        plugin.setEditing(player, d.id);
+        super.open();
+    }
+
     @Override protected String title() { return "<dark_gray>Donjon : " + d.id; }
     @Override protected int rows() { return 4; }
 
@@ -61,6 +71,7 @@ public final class DungeonMenu extends Menu {
         set(24, Items.of(Material.DIAMOND_SWORD, "<green>Tester (solo)", "<gray>Lance le donjon immediatement.",
                 Items.hint("lancer", null)), e -> {
             player.closeInventory();
+            plugin.audit(player, "dungeon.test", d.id);
             String err = plugin.runs().start(player, d);
             if (err != null) Msg.error(player, err);
         });

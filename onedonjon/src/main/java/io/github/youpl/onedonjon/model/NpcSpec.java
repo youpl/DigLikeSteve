@@ -3,6 +3,7 @@ package io.github.youpl.onedonjon.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.youpl.onedonjon.util.Limits;
 import org.bukkit.configuration.ConfigurationSection;
 
 /** PNJ Citizens present dans une salle ; un clic droit declenche ses actions. */
@@ -28,7 +29,7 @@ public final class NpcSpec {
     public static NpcSpec load(ConfigurationSection s) {
         NpcSpec n = new NpcSpec();
         n.id = s.getString("id", "npc");
-        n.name = s.getString("name", "Gardien");
+        n.name = MobSpec.clip(s.getString("name", "Gardien"), Limits.MAX_TEXT);
         n.entityType = s.getString("entity-type", "PLAYER");
         n.pos = Pos.load(s.getConfigurationSection("pos"));
         n.model = s.getString("model", "");

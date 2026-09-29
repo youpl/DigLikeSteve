@@ -27,6 +27,8 @@ public final class ActionsMenu {
                         list.remove(i);
                         save.run();
                         self[0].refresh();
+                    } else if (!allowed(plugin, p, a.type())) {
+                        return;
                     } else if (a.type() == Action.Type.ITEM) {
                         pickItem(plugin, p, v -> {
                             list.set(i, new Action(Action.Type.ITEM, v));
@@ -34,6 +36,7 @@ public final class ActionsMenu {
                         }, self[0]);
                     } else {
                         plugin.prompts().ask(p, question(a.type()), v -> {
+                            check(a.type(), v);
                             list.set(i, new Action(a.type(), v));
                             save.run();
                             self[0].open();
@@ -57,7 +60,9 @@ public final class ActionsMenu {
             }, parent);
             return;
         }
+        if (!allowed(plugin, p, t)) return;
         plugin.prompts().ask(p, question(t), v -> {
+            check(t, v);
             list.add(new Action(t, v));
             save.run();
             parent.open();
@@ -70,6 +75,20 @@ public final class ActionsMenu {
             done.accept(ref.source() + " " + ref.id() + " " + ref.amount());
             parent.open();
         }, () -> parent);
+    }
+
+    /** Les actions COMMAND s'executent en console : elles exigent un droit distinct de l'edition simple. */
+    private static boolean allowed(OneDonjonPlugin plugin, Player p, Action.Type t) {
+        if (t == Action.Type.COMMAND && !plugin.core().has(p, "onedonjon.admin.commands")) {
+            Msg.error(p, "Il faut la permission onedonjon.admin.commands pour creer ou modifier une commande console.");
+            return false;
+        }
+        return true;
+    }
+
+    private static void check(Action.Type t, String v) {
+        String err = Action.validate(t, v);
+        if (err != null) throw new IllegalArgumentException(err);
     }
 
     static Material icon(Action.Type t) {

@@ -1,7 +1,5 @@
 package io.github.youpl.onedonjon.integration;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
@@ -22,14 +20,16 @@ public final class CitizensHook implements Listener {
 
     private final OneDonjonPlugin plugin;
     /** Callback (joueur, id de PNJ Citizens) ; enregistre une seule fois. */
-    private BiConsumer<Player, Integer> clickHandler;
+    private BiConsumer<Player, Object> clickHandler;
+    /** Registre anonyme : les PNJ de donjon ne sont jamais ecrits sur disque par Citizens (pas d'orphelins apres un crash). */
+    private Object registry;
     private boolean listening;
 
     public CitizensHook(OneDonjonPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void onClick(BiConsumer<Player, Integer> handler) {
+    public void onClick(BiConsumer<Player, Object> handler) {
         this.clickHandler = handler;
         if (listening || !plugin.hooks().citizens()) return;
         Class<?> ev = Reflect.cls("net.citizensnpcs.api.event.NPCRightClickEvent");
@@ -38,8 +38,7 @@ public final class CitizensHook implements Listener {
             try {
                 Object npc = Reflect.call(e, "getNPC");
                 Player clicker = (Player) Reflect.call(e, "getClicker");
-                int id = (Integer) Reflect.call(npc, "getId");
-                if (clickHandler != null) clickHandler.accept(clicker, id);
+                if (clickHandler != null) clickHandler.accept(clicker, npc);
             } catch (ReflectiveOperationException | RuntimeException ex) {
                 plugin.getLogger().log(Level.WARNING, "Citizens : clic PNJ illisible", ex);
             }
@@ -50,11 +49,20 @@ public final class CitizensHook implements Listener {
         listening = true;
     }
 
-    /** Cree et fait apparaitre un PNJ ; renvoie son id Citizens, ou -1. */
-    public int spawn(NpcSpec spec) {
-        if (!plugin.hooks().citizens() || spec.pos == null || spec.pos.toLocation() == null) return -1;
+    private Object registry() throws ReflectiveOperationException {
+        if (registry == null) {
+            Class<?> store = Reflect.cls("net.citizensnpcs.api.npc.MemoryNPCDataStore");
+            Class<?> api = Reflect.cls("net.citizensnpcs.api.CitizensAPI");
+            registry = Reflect.call(api, "createAnonymousNPCRegistry", store.getConstructor().newInstance());
+        }
+        return registry;
+    }
+
+    /** Cree et fait apparaitre un PNJ ; renvoie l'objet NPC Citizens (identite), ou null. */
+    public Object spawn(NpcSpec spec) {
+        if (!plugin.hooks().citizens() || spec.pos == null || spec.pos.toLocation() == null) return null;
         try {
-            Object registry = Reflect.call(Reflect.cls("net.citizensnpcs.api.CitizensAPI"), "getNPCRegistry");
+            Object registry = registry();
             EntityType type;
             try {
                 type = EntityType.valueOf(spec.entityType.toUpperCase());
@@ -67,22 +75,19 @@ public final class CitizensHook implements Listener {
                 Object ent = Reflect.call(npc, "getEntity");
                 if (ent instanceof Entity e) plugin.hooks().applyModel(e, spec.model);
             }
-            return (Integer) Reflect.call(npc, "getId");
+            return npc;
         } catch (ReflectiveOperationException | RuntimeException e) {
             plugin.getLogger().log(Level.WARNING, "Citizens : PNJ '" + spec.id + "' non cree", e);
-            return -1;
+            return null;
         }
     }
 
-    public void destroy(int npcId) {
-        if (!plugin.hooks().citizens()) return;
+    public void destroy(Object npc) {
+        if (npc == null) return;
         try {
-            Object registry = Reflect.call(Reflect.cls("net.citizensnpcs.api.CitizensAPI"), "getNPCRegistry");
-            Object npc = Reflect.call(registry, "getById", npcId);
-            if (npc != null) Reflect.call(npc, "destroy");
+            Reflect.call(npc, "destroy");
         } catch (ReflectiveOperationException | RuntimeException e) {
-            plugin.getLogger().log(Level.WARNING, "Citizens : PNJ " + npcId + " non supprime", e);
+            plugin.getLogger().log(Level.WARNING, "Citizens : PNJ non supprime", e);
         }
     }
-
 }

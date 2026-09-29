@@ -47,15 +47,17 @@ public final class Dungeon {
     }
 
     public static Dungeon fromYaml(YamlConfiguration y) {
-        Dungeon d = new Dungeon(y.getString("id"));
+        String id = y.getString("id");
+        if (id == null || !id.matches("[a-zA-Z0-9_-]{1,32}")) throw new IllegalArgumentException("identifiant de donjon invalide : " + id);
+        Dungeon d = new Dungeon(id.toLowerCase());
         d.displayName = y.getString("display-name", d.id);
         d.enabled = y.getBoolean("enabled", true);
         d.start = Pos.load(y.getConfigurationSection("start"));
         d.exit = Pos.load(y.getConfigurationSection("exit"));
-        d.lives = y.getInt("lives", 3);
-        d.timeLimitSeconds = y.getInt("time-limit-seconds", 0);
-        d.minPlayers = y.getInt("min-players", 1);
-        d.maxPlayers = y.getInt("max-players", 4);
+        d.lives = io.github.youpl.onedonjon.util.Limits.clamp(y.getInt("lives", 3), 1, 20);
+        d.timeLimitSeconds = io.github.youpl.onedonjon.util.Limits.clamp(y.getInt("time-limit-seconds", 0), 0, 86_400);
+        d.minPlayers = io.github.youpl.onedonjon.util.Limits.clamp(y.getInt("min-players", 1), 1, 50);
+        d.maxPlayers = io.github.youpl.onedonjon.util.Limits.clamp(y.getInt("max-players", 4), d.minPlayers, 50);
         d.onStart = Action.loadList(y, "on-start");
         d.rewards = Action.loadList(y, "rewards");
         ConfigurationSection r = y.getConfigurationSection("rooms");

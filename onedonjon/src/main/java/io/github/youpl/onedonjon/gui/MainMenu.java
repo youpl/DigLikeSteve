@@ -16,6 +16,7 @@ public final class MainMenu {
     private MainMenu() {}
 
     public static Menu of(OneDonjonPlugin plugin, Player p) {
+        plugin.setEditing(p, null);
         ListMenu<Dungeon>[] self = new ListMenu[1];
         self[0] = new ListMenu<Dungeon>(plugin, p, "<dark_gray>OneDonjon - Donjons", () -> new ArrayList<>(plugin.storage().all()))
                 .icon(d -> {

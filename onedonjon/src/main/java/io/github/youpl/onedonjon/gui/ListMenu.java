@@ -27,6 +27,7 @@ public final class ListMenu<T> extends Menu {
     private BiConsumer<T, InventoryClickEvent> onClick = (t, e) -> { };
     private Supplier<Menu> back;
     private final List<Btn> buttons = new ArrayList<>();
+    private boolean adminOnly = true;
     private int page;
 
     public ListMenu(OneDonjonPlugin plugin, Player player, String title, Supplier<List<T>> items) {
@@ -37,6 +38,11 @@ public final class ListMenu<T> extends Menu {
 
     public ListMenu<T> icon(Function<T, ItemStack> f) { this.icon = f; return this; }
     public ListMenu<T> onClick(BiConsumer<T, InventoryClickEvent> f) { this.onClick = f; return this; }
+    /** Menu accessible a tous les joueurs (ex. liste des donjons jouables). */
+    public ListMenu<T> publicMenu() { this.adminOnly = false; return this; }
+
+    @Override public boolean adminOnly() { return adminOnly; }
+
     public ListMenu<T> back(Supplier<Menu> b) { this.back = b; return this; }
 
     /** Ajoute un bouton dans la barre du bas (jusqu'a 6). */

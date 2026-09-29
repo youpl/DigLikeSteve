@@ -30,6 +30,10 @@ public final class DungeonStorage {
         for (File f : files) {
             try {
                 Dungeon d = Dungeon.fromYaml(YamlConfiguration.loadConfiguration(f));
+                if (!f.getName().equals(d.id + ".yml")) {
+                    plugin.getLogger().severe("Donjon ignore : le fichier " + f.getName() + " ne correspond pas a l'id '" + d.id + "'");
+                    continue;
+                }
                 dungeons.put(d.id, d);
             } catch (RuntimeException e) {
                 plugin.getLogger().log(Level.SEVERE, "Donjon illisible : " + f.getName(), e);
@@ -39,8 +43,11 @@ public final class DungeonStorage {
     }
 
     public void save(Dungeon d) {
+        if (!validId(d.id)) throw new IllegalStateException("identifiant invalide : " + d.id);
+        plugin.auditEdit(d.id);
         try {
             d.toYaml().save(new File(dir, d.id + ".yml"));
+            if (plugin.deluxe() != null) plugin.deluxe().requestExport();
         } catch (IOException e) {
             plugin.getLogger().log(Level.SEVERE, "Sauvegarde impossible : " + d.id, e);
         }
@@ -58,14 +65,19 @@ public final class DungeonStorage {
         Dungeon d = new Dungeon(id.toLowerCase());
         d.displayName = id;
         dungeons.put(d.id, d);
+        plugin.audit(plugin.actor(), "dungeon.create", d.id);
         save(d);
         return d;
     }
 
     public void delete(Dungeon d) {
+        var run = plugin.runs().of(d.id);
+        if (run != null) run.end(false, "Donjon supprime.");
+        plugin.audit(plugin.actor(), "dungeon.delete", d.id);
         dungeons.remove(d.id);
         File f = new File(dir, d.id + ".yml");
         if (f.exists() && !f.delete()) plugin.getLogger().warning("Suppression impossible : " + f);
+        if (plugin.deluxe() != null) plugin.deluxe().requestExport();
     }
 
     public static boolean validId(String id) {

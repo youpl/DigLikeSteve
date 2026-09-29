@@ -3,6 +3,7 @@ package io.github.youpl.onedonjon.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.youpl.onedonjon.util.Limits;
 import org.bukkit.configuration.ConfigurationSection;
 
 public final class Wave {
@@ -21,7 +22,7 @@ public final class Wave {
 
     public static Wave load(ConfigurationSection s) {
         Wave w = new Wave();
-        w.delayTicks = s.getInt("delay-ticks", 60);
+        w.delayTicks = Limits.clamp(s.getInt("delay-ticks", 60), 0, Limits.MAX_DELAY_TICKS);
         w.onStart = Action.loadList(s, "on-start");
         ConfigurationSection m = s.getConfigurationSection("mobs");
         if (m != null) for (String k : m.getKeys(false)) w.mobs.add(MobSpec.load(m.getConfigurationSection(k)));

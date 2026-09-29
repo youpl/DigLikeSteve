@@ -3,6 +3,7 @@ package io.github.youpl.onedonjon.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.youpl.onedonjon.util.Limits;
 import org.bukkit.configuration.ConfigurationSection;
 
 public final class Puzzle {
@@ -36,14 +37,19 @@ public final class Puzzle {
 
     public static Puzzle load(ConfigurationSection s) {
         Puzzle p = new Puzzle();
-        p.id = s.getString("id", "puzzle");
-        p.type = Type.valueOf(s.getString("type", "SEQUENCE"));
-        p.blocks = new ArrayList<>(s.getStringList("blocks"));
+        p.id = MobSpec.clip(s.getString("id", "puzzle"), 64);
+        p.type = MobSpec.enumOr(Type.class, s.getString("type"), Type.SEQUENCE);
+        p.blocks = new ArrayList<>(s.getStringList("blocks").stream().filter(Puzzle::validBlockKey).limit(Limits.MAX_LIST).toList());
         p.key = ItemRef.load(s.getConfigurationSection("key"));
         p.required = s.getBoolean("required", true);
-        p.wrongDamage = s.getDouble("wrong-damage", 0);
+        p.wrongDamage = Limits.clamp(s.getDouble("wrong-damage", 0), 0, Limits.MAX_TRAP_VALUE);
         p.onSolve = Action.loadList(s, "on-solve");
         return p;
+    }
+
+    /** Cle de bloc "monde,x,y,z" bien formee (un fichier edite a la main ne doit pas faire planter le jeu). */
+    public static boolean validBlockKey(String k) {
+        return k != null && k.matches("[^,]{1,64},-?\\d{1,9},-?\\d{1,9},-?\\d{1,9}");
     }
 
     public static String blockKey(org.bukkit.block.Block b) {

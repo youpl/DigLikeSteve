@@ -1,5 +1,6 @@
 package io.github.youpl.onedonjon.model;
 
+import io.github.youpl.onedonjon.util.Limits;
 import org.bukkit.configuration.ConfigurationSection;
 
 /** Piege actif pendant que sa salle est en cours. */
@@ -44,14 +45,14 @@ public final class Trap {
 
     public static Trap load(ConfigurationSection s) {
         Trap t = new Trap();
-        t.id = s.getString("id", "trap");
-        t.type = Type.valueOf(s.getString("type", "DAMAGE_ZONE"));
-        t.mode = Mode.valueOf(s.getString("mode", "CONTINUOUS"));
+        t.id = MobSpec.clip(s.getString("id", "trap"), 64);
+        t.type = MobSpec.enumOr(Type.class, s.getString("type"), Type.DAMAGE_ZONE);
+        t.mode = MobSpec.enumOr(Mode.class, s.getString("mode"), Mode.CONTINUOUS);
         t.pos = Pos.load(s.getConfigurationSection("pos"));
-        t.radius = s.getDouble("radius", 3);
-        t.value = s.getDouble("value", 2);
-        t.intervalTicks = Math.max(1, s.getInt("interval-ticks", 20));
-        t.effect = s.getString("effect", "SLOWNESS:1");
+        t.radius = Limits.clamp(s.getDouble("radius", 3), 0.5, Limits.MAX_TRAP_RADIUS);
+        t.value = Limits.clamp(s.getDouble("value", 2), 0, Limits.MAX_TRAP_VALUE);
+        t.intervalTicks = Limits.clamp(s.getInt("interval-ticks", 20), 5, 72_000);
+        t.effect = MobSpec.clip(s.getString("effect", "SLOWNESS:1"), 64);
         return t;
     }
 }

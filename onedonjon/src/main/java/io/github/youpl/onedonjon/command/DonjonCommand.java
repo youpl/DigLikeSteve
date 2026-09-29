@@ -2,9 +2,13 @@ package io.github.youpl.onedonjon.command;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import io.github.youpl.onedonjon.OneDonjonPlugin;
+import io.github.youpl.onedonjon.gui.DungeonMenu;
 import io.github.youpl.onedonjon.gui.MainMenu;
+import io.github.youpl.onedonjon.gui.PlayMenu;
+import io.github.youpl.onedonjon.deluxe.DeluxeMenusBridge;
 import io.github.youpl.onedonjon.model.Dungeon;
 import io.github.youpl.onedonjon.run.DungeonRun;
 import io.github.youpl.onedonjon.util.Msg;
@@ -16,8 +20,8 @@ import org.bukkit.entity.Player;
 
 public final class DonjonCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> PLAYER_SUBS = List.of("play", "launch", "leave", "list", "status");
-    private static final List<String> ADMIN_SUBS = List.of("menu", "start", "stop", "wand", "reload");
+    private static final List<String> PLAYER_SUBS = List.of("menu", "play", "launch", "leave", "list", "status");
+    private static final List<String> ADMIN_SUBS = List.of("admin", "editor", "edit", "start", "stop", "wand", "reload", "dmexport");
 
     private final OneDonjonPlugin plugin;
 
@@ -27,37 +31,70 @@ public final class DonjonCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender s, Command c, String label, String[] a) {
-        String sub = a.length == 0 ? (s.hasPermission("onedonjon.admin") ? "menu" : "list") : a[0].toLowerCase();
-        boolean admin = ADMIN_SUBS.contains(sub);
-        if (admin && !s.hasPermission("onedonjon.admin")) {
+        boolean admin = s instanceof Player p ? plugin.core().isAdmin(p) : s.hasPermission("onedonjon.admin");
+        String sub = a.length == 0 ? (admin ? "admin" : "menu") : a[0].toLowerCase();
+        if (ADMIN_SUBS.contains(sub)) {
+            if (!admin) {
+                Msg.error(s, "Permission manquante.");
+                return true;
+            }
+        } else if (!s.hasPermission("onedonjon.play")) {
             Msg.error(s, "Permission manquante.");
             return true;
         }
-        if (!admin && !s.hasPermission("onedonjon.play")) {
-            Msg.error(s, "Permission manquante.");
-            return true;
+        plugin.setActor(s);
+        try {
+            run(s, sub, a);
+        } finally {
+            plugin.setActor(null);
         }
-        if (sub.equals("reload")) {
-            plugin.reload();
-            Msg.send(s, "Configuration et donjons recharges.");
-            return true;
-        }
-        if (sub.equals("list")) {
-            list(s);
-            return true;
+        return true;
+    }
+
+    private void run(CommandSender s, String sub, String[] a) {
+        switch (sub) {
+            case "reload" -> {
+                plugin.reload();
+                plugin.audit(s, "reload", "-");
+                Msg.send(s, "Configuration et donjons recharges (parties en cours arretees).");
+                return;
+            }
+            case "dmexport" -> {
+                plugin.deluxe().export();
+                Msg.send(s, plugin.deluxe().available() ? "Menus DeluxeMenus regeneres." : "DeluxeMenus absent ou desactive.");
+                return;
+            }
+            case "list" -> {
+                list(s);
+                return;
+            }
+            default -> { }
         }
         if (!(s instanceof Player p)) {
             Msg.error(s, "Commande reservee aux joueurs.");
-            return true;
+            return;
         }
         switch (sub) {
-            case "menu" -> MainMenu.of(plugin, p).open();
+            case "menu" -> {
+                if (!plugin.deluxe().open(p, DeluxeMenusBridge.PLAY_MENU)) PlayMenu.of(plugin, p).open();
+            }
+            case "admin" -> {
+                if (!plugin.deluxe().open(p, DeluxeMenusBridge.ADMIN_MENU)) MainMenu.of(plugin, p).open();
+            }
+            case "editor" -> MainMenu.of(plugin, p).open();
+            case "edit" -> withDungeon(p, a, d -> {
+                new DungeonMenu(plugin, p, d).open();
+                return null;
+            });
             case "wand" -> {
                 p.getInventory().addItem(plugin.selections().wand());
                 Msg.send(p, "Baguette donnee : clic gauche = coin 1, clic droit = coin 2.");
             }
             case "play" -> withDungeon(p, a, d -> plugin.runs().play(p, d));
-            case "start" -> withDungeon(p, a, d -> plugin.runs().start(p, d));
+            case "start" -> withDungeon(p, a, d -> {
+                plugin.audit(p, "dungeon.test", d.id);
+                return plugin.runs().start(p, d);
+            });
             case "launch" -> result(p, plugin.runs().launch(p));
             case "leave" -> {
                 DungeonRun r = plugin.runs().of(p);
@@ -66,20 +103,23 @@ public final class DonjonCommand implements CommandExecutor, TabCompleter {
             }
             case "stop" -> {
                 DungeonRun r = a.length > 1 ? plugin.runs().of(a[1].toLowerCase()) : plugin.runs().of(p);
-                if (r == null) Msg.error(p, "Aucune partie correspondante.");
-                else r.end(false, "Arrete par un administrateur.");
+                if (r == null) {
+                    Msg.error(p, "Aucune partie correspondante.");
+                } else {
+                    plugin.audit(p, "dungeon.stop", r.dungeon.id);
+                    r.end(false, "Arrete par un administrateur.");
+                }
             }
             case "status" -> {
                 DungeonRun r = plugin.runs().of(p);
                 Msg.send(p, r == null ? "Vous n'etes dans aucun donjon." : r.status());
             }
-            default -> Msg.error(p, "Sous-commandes : " + String.join(", ", PLAYER_SUBS) + (p.hasPermission("onedonjon.admin")
+            default -> Msg.error(p, "Sous-commandes : " + String.join(", ", PLAYER_SUBS) + (plugin.core().isAdmin(p)
                     ? ", " + String.join(", ", ADMIN_SUBS) : ""));
         }
-        return true;
     }
 
-    private void withDungeon(Player p, String[] a, java.util.function.Function<Dungeon, String> action) {
+    private void withDungeon(Player p, String[] a, Function<Dungeon, String> action) {
         if (a.length < 2) {
             Msg.error(p, "Usage : /donjon " + a[0] + " <id>");
             return;
@@ -98,8 +138,9 @@ public final class DonjonCommand implements CommandExecutor, TabCompleter {
 
     private void list(CommandSender s) {
         Msg.send(s, "Donjons disponibles :");
+        boolean admin = s.hasPermission("onedonjon.admin");
         for (Dungeon d : plugin.storage().all()) {
-            if (!d.enabled && !s.hasPermission("onedonjon.admin")) continue;
+            if (!d.enabled && !admin) continue;
             boolean ready = d.problems().isEmpty();
             s.sendMessage(Msg.mm("<dark_gray> - <gold>" + Msg.escape(d.displayName) + " <gray>(" + d.id + ") "
                     + (ready && d.enabled ? "<green>jouable" : "<red>indisponible")));
@@ -112,7 +153,8 @@ public final class DonjonCommand implements CommandExecutor, TabCompleter {
         if (a.length == 1) {
             out.addAll(PLAYER_SUBS);
             if (s.hasPermission("onedonjon.admin")) out.addAll(ADMIN_SUBS);
-        } else if (a.length == 2 && List.of("play", "start", "stop").contains(a[0].toLowerCase())) {
+        } else if (a.length == 2 && s.hasPermission("onedonjon.admin") && List.of("edit", "start", "stop").contains(a[0].toLowerCase())
+                || a.length == 2 && a[0].equalsIgnoreCase("play")) {
             plugin.storage().all().forEach(d -> out.add(d.id));
         }
         String prefix = a[a.length - 1].toLowerCase();

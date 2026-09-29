@@ -2,12 +2,21 @@ package io.github.youpl.onedonjon.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.CommandSender;
 
 public final class Msg {
 
-    private static final MiniMessage MM = MiniMessage.miniMessage();
+    /**
+     * MiniMessage restreint a la mise en forme (couleurs, styles, degrades) : le contenu redige par les
+     * administrateurs ne peut pas porter de clic (commande), de survol, de police ni de selecteur.
+     */
+    private static final MiniMessage MM = MiniMessage.builder().tags(TagResolver.builder()
+            .resolver(StandardTags.color()).resolver(StandardTags.decorations()).resolver(StandardTags.gradient())
+            .resolver(StandardTags.rainbow()).resolver(StandardTags.reset()).resolver(StandardTags.newline())
+            .build()).build();
     public static final String PREFIX = "<gradient:#f5a623:#d0021b><bold>OneDonjon</bold></gradient> <dark_gray>»</dark_gray> ";
 
     private Msg() {}

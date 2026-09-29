@@ -3,10 +3,12 @@ version: '${version}'
 main: io.github.youpl.onedonjon.OneDonjonPlugin
 api-version: '26.1'
 authors: [youpl]
-description: Donjons sur mesure configurables entierement en jeu (GUI) - MythicMobs, MMOItems, Nexo, ModelEngine, Citizens, Typewriter.
+description: Donjons sur mesure configurables entierement en jeu - MythicMobs, MMOItems, Nexo, ModelEngine, Citizens, Typewriter, DeluxeMenus, OneCore.
 
 # Toutes les integrations sont facultatives : chacune n'active que ses propres options.
 softdepend:
+  - OneCore
+  - DeluxeMenus
   - MythicMobs
   - MMOItems
   - MythicLib
@@ -18,7 +20,7 @@ softdepend:
 commands:
   donjon:
     description: Commandes OneDonjon.
-    usage: /donjon <menu|play|launch|leave|list|start|stop|wand|reload>
+    usage: /donjon <menu|play|launch|leave|list|status|admin|editor|edit|start|stop|wand|reload|dmexport>
     aliases: [od, onedonjon]
 
 permissions:
@@ -27,4 +29,7 @@ permissions:
     default: true
   onedonjon.admin:
     description: Creer et editer des donjons, tester, arreter des parties.
+    default: op
+  onedonjon.admin.commands:
+    description: Creer des actions COMMAND (executees en console). Droit sensible, a reserver aux operateurs de confiance.
     default: op

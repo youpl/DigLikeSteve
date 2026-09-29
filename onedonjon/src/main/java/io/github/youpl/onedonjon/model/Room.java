@@ -48,7 +48,7 @@ public final class Room {
         r.name = s.getString("name", "Salle");
         r.region = Cuboid.load(s.getConfigurationSection("region"));
         r.door = Cuboid.load(s.getConfigurationSection("door"));
-        r.doorMaterial = s.getString("door-material", "IRON_BARS");
+        r.doorMaterial = MobSpec.clip(s.getString("door-material", "IRON_BARS"), 64);
         r.checkpoint = Pos.load(s.getConfigurationSection("checkpoint"));
         loadList(s, "spawn-points", r.spawnPoints, SpawnPoint::load);
         loadList(s, "waves", r.waves, Wave::load);

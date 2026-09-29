@@ -28,6 +28,11 @@ public abstract class Menu implements InventoryHolder {
         this.player = player;
     }
 
+    /** Les menus d'edition exigent le droit d'administration a chaque clic (le droit peut etre retire menu ouvert). */
+    public boolean adminOnly() {
+        return true;
+    }
+
     protected abstract String title();
 
     protected abstract int rows();

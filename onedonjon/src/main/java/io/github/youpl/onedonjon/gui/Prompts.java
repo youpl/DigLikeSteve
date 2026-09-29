@@ -1,7 +1,7 @@
 package io.github.youpl.onedonjon.gui;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -22,7 +22,7 @@ public final class Prompts implements Listener {
     private record Pending(Consumer<String> onValue, Runnable onCancel) {}
 
     private final OneDonjonPlugin plugin;
-    private final Map<UUID, Pending> pending = new HashMap<>();
+    private final Map<UUID, Pending> pending = new ConcurrentHashMap<>();
 
     public Prompts(OneDonjonPlugin plugin) {
         this.plugin = plugin;
@@ -41,16 +41,22 @@ public final class Prompts implements Listener {
         if (pd == null) return;
         e.setCancelled(true);
         String text = PlainTextComponentSerializer.plainText().serialize(e.message()).trim();
+        if (text.length() > io.github.youpl.onedonjon.util.Limits.MAX_TEXT) text = text.substring(0, io.github.youpl.onedonjon.util.Limits.MAX_TEXT);
+        final String value = text;
         Bukkit.getScheduler().runTask(plugin, () -> {
-            if (text.equalsIgnoreCase("annuler") || text.equalsIgnoreCase("cancel") || text.isEmpty()) {
+            if (!e.getPlayer().isOnline()) return;
+            if (value.equalsIgnoreCase("annuler") || value.equalsIgnoreCase("cancel") || value.isEmpty()) {
                 pd.onCancel().run();
                 return;
             }
+            plugin.setActor(e.getPlayer());
             try {
-                pd.onValue().accept(text);
+                pd.onValue().accept(value);
             } catch (RuntimeException ex) {
                 Msg.error(e.getPlayer(), "Valeur invalide : " + Msg.escape(String.valueOf(ex.getMessage())));
                 pd.onCancel().run();
+            } finally {
+                plugin.setActor(null);
             }
         });
     }
@@ -58,5 +64,6 @@ public final class Prompts implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         pending.remove(e.getPlayer().getUniqueId());
+        plugin.setEditing(e.getPlayer(), null);
     }
 }

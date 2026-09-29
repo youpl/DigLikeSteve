@@ -20,7 +20,7 @@ public final class Effects {
         int level = 1;
         if (p.length > 1) {
             try {
-                level = Math.max(1, Integer.parseInt(p[1].trim()));
+                level = Limits.clamp(Integer.parseInt(p[1].trim()), 1, 255);
             } catch (NumberFormatException ignored) {
                 // niveau 1
             }

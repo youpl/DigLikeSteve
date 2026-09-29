@@ -26,7 +26,10 @@ public final class Selections implements Listener {
     private final NamespacedKey wandKey;
     private final Map<UUID, Location[]> sel = new HashMap<>();
 
+    private final OneDonjonPlugin plugin;
+
     public Selections(OneDonjonPlugin plugin) {
+        this.plugin = plugin;
         this.wandKey = new NamespacedKey(plugin, "wand");
     }
 
@@ -54,6 +57,7 @@ public final class Selections implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
         if (e.getHand() != EquipmentSlot.HAND || e.getClickedBlock() == null || !isWand(e.getItem())) return;
+        if (!plugin.core().isAdmin(e.getPlayer())) return;
         Action a = e.getAction();
         if (a != Action.LEFT_CLICK_BLOCK && a != Action.RIGHT_CLICK_BLOCK) return;
         e.setCancelled(true);

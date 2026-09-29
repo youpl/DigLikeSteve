@@ -1,14 +1,35 @@
 # OneDonjon - configuration generale. Les donjons sont dans dungeons/*.yml (edites via /donjon).
+# Quand OneCore est connecte, ses valeurs priment sur celles de ce fichier (espace de noms "onedonjon").
 
+# --- Jeu ---------------------------------------------------------------------------------
+# Les joueurs gardent leur inventaire et leur niveau en mourant dans un donjon.
+keep-inventory: true
+# Supprime les drops et l'xp des monstres du donjon.
+clear-mob-drops: false
+# Dispersion (blocs, 0-10) autour du point d'apparition.
+mob-spread: 2
+# Plafond de monstres vivants simultanement dans une salle (protection contre les configs abusives).
+max-mobs-per-room: 300
+
+# --- Integrations ----------------------------------------------------------------------------
 # Commande console executee par l'action TYPEWRITER ({entry} = id d'entree, {player} = joueur).
 # Adaptez-la si votre version de Typewriter utilise une autre syntaxe.
 typewriter-command: "typewriter trigger {entry} {player}"
 
-# Dispersion (blocs) autour du point d'apparition.
-mob-spread: 2.0
+deluxemenus:
+  # Genere plugins/DeluxeMenus/gui_menus/onedonjon_play.yml et onedonjon_admin.yml.
+  enabled: true
 
-# Les joueurs gardent leur inventaire et leur niveau en mourant dans un donjon.
-keep-inventory: true
+onecore:
+  enabled: true
+  # Classe de l'API OneCore enregistree dans le ServicesManager de Bukkit (a renseigner).
+  api-class: ""
+  namespace: onedonjon
 
-# Supprime les drops et l'xp des monstres du donjon.
-clear-mob-drops: false
+# --- Securite -----------------------------------------------------------------------------------
+# Les actions COMMAND exigent la permission onedonjon.admin.commands. En plus, ces commandes sont
+# toujours refusees : op, deop, stop, reload, ban, whitelist, luckperms... (liste interne).
+# Commandes supplementaires a refuser :
+blocked-commands: []
+# Si non vide : SEULES ces commandes (premier mot) sont autorisees dans les actions COMMAND.
+command-allowlist: []
